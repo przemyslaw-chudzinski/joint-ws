@@ -1,0 +1,88 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Hublock - POC - WS</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        .actions {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<div id="canvas"></div>
+
+<div class="actions">
+    <button id="addShape">Add shapes</button>
+    <button id="changeModel">Change any model</button>
+</div>
+
+<script src="vendor/jquery/dist/jquery.js"></script>
+<script src="vendor/lodash/index.js"></script>
+<script src="vendor/backbone/backbone.js"></script>
+<script src="vendor/rappid.min.js"></script>
+<script>
+
+
+    const el = document.querySelector('#canvas');
+    const graph = new joint.dia.Graph;
+    const paper = new joint.dia.Paper({
+        el: document.querySelector('#canvas'),
+        model: graph,
+        width: 800,
+        height: 800,
+        gridSize: 1,
+        drawGrid: true
+    });
+
+
+    const channel = new joint.com.Channel({url: 'ws://localhost:4141', graph});
+
+    const btn = document.querySelector('#addShape');
+
+    const rect = new joint.shapes.standard.Rectangle();
+
+    rect.position(100, 30);
+    rect.resize(100, 40);
+    rect.attr({
+        body: {
+            fill: 'blue'
+        },
+        label: {
+            text: 'Hello',
+            fill: 'white'
+        }
+    });
+
+    const rect2 = rect.clone();
+    rect2.translate(300, 0);
+    rect2.attr('label/text', 'World!');
+
+    btn.addEventListener('click', e => {
+
+        rect.addTo(graph);
+        rect2.addTo(graph);
+
+        const link = new joint.shapes.standard.Link();
+        link.source(rect);
+        link.target(rect2);
+        link.addTo(graph);
+    });
+
+    const changeModelBtn = document.querySelector('#changeModel');
+
+    changeModelBtn.addEventListener('click', e => rect2.attr('label/text', 'World! Changed'));
+
+</script>
+</body>
+</html>
